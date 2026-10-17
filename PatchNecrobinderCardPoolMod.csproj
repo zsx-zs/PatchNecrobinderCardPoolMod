@@ -16,4 +16,7 @@
       <HintPath>..\依赖文件\sts2.dll</HintPath>
     </Reference>
   </ItemGroup>
+  <ItemGroup>
+    <Content Include="README.md" />
+  </ItemGroup>
 </Project>
