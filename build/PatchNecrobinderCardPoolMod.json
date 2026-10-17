@@ -1,0 +1,21 @@
+{
+
+"id": "PatchNecrobinderCardPoolMod",
+
+"name": "PatchNecrobinderCardPoolMod",
+
+"author": "zyfeng",
+
+"description": "骨妹卡池测试mod",
+
+"version": "v1.0.0",
+
+"has_pck": false,
+
+"has_dll": true,
+
+"dependencies": [],
+
+"affects_gameplay": false
+
+}
