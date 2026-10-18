@@ -11,9 +11,7 @@ public class PatchSculptingStrike
     static void Postfix(object __instance)
     {
         var type = __instance.GetType().BaseType!;
-        var field = type.GetField("<Rarity>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance)
-                    ?? type.GetField("_rarity", BindingFlags.NonPublic | BindingFlags.Instance)
-                    ?? type.GetField("rarity", BindingFlags.NonPublic | BindingFlags.Instance);
+        var field = type.GetField("<Rarity>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance);
         field?.SetValue(__instance, CardRarity.Uncommon);
     }
 }
