@@ -45,7 +45,7 @@ public static class PatchDeathbringer
             var dynamicVars = prop!.GetValue(__instance);
 
             var doom = dynamicVars!.GetType().GetProperty("Doom")!.GetValue(dynamicVars);
-            doom!.GetType().GetMethod("UpgradeValueBy")!.Invoke(doom, new object[] { 3m });
+            doom!.GetType().GetMethod("UpgradeValueBy")!.Invoke(doom, new object[] { 4m });
 
             var weak = dynamicVars.GetType().GetProperty("Weak")!.GetValue(dynamicVars);
             weak!.GetType().GetMethod("UpgradeValueBy")!.Invoke(weak, new object[] { 1m });
