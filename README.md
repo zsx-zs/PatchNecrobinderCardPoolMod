@@ -30,13 +30,14 @@
 
 ### 金卡
 
-| 卡牌                   | 修改内容                                                                  |
-|------------------------|---------------------------------------------------------------------------|
-| 吞噬生命 (DevourLife)  | 召唤 1-2 → 召唤 2-3，稀有度 金卡 → 蓝卡                                   |
-| 复苏 (Reanimate)       | 召唤 20-25 → 召唤 22-28                                                   |
-| 根除 (Eradicate)       | 伤害 11-14 → 伤害 10-13                                                   |
-| 降灵 (Seance)          | 灵魂-灵魂 → 灵魂+-灵魂+                                                   |
-| 女妖之嚎 (BansheesCry) | 费用9-7 → 3-3，稀有度 金卡 → 蓝卡，伤害 33-33→ 伤害15-18，本场战斗→本回合 |
+| 卡牌                    | 修改内容                                                                  |
+|-------------------------|---------------------------------------------------------------------------|
+| 吞噬生命 (DevourLife)   | 召唤 1-2 → 召唤 2-3，稀有度 金卡 → 蓝卡                                   |
+| 复苏 (Reanimate)        | 召唤 20-25 → 召唤 22-28                                                   |
+| 根除 (Eradicate)        | 伤害 11-14 → 伤害 10-13                                                   |
+| 降灵 (Seance)           | 灵魂-灵魂 → 灵魂+-灵魂+                                                   |
+| 女妖之嚎 (BansheesCry)  | 费用9-7 → 3-3，稀有度 金卡 → 蓝卡，伤害 33-33→ 伤害15-18，本场战斗→本回合 |
+| 亡灵精通 (Necromastery) | 新增效果：奥斯提每回合回复2                                               |
 
 ## 技术说明
 
@@ -73,3 +74,20 @@ OnPlay 是`async` ，编译器会把真正的方法体搬进状态机`<OnPlay>d_
 - 占位符（`{Cards:diff()}` 、`plural` ）照抄原版同类型词条的写法
 
 - 属性修改：子类 override 的属性/方法 → patch 子类；没 override → patch CardModel + 类型筛选
+- 悬停图标修改：[HarmonyPatch(typeof(PowerModel), "get_HoverTips")]
+  public static class PatchPowerModelHoverTips
+  {
+  static void Postfix(PowerModel __instance, ref IEnumerable<IHoverTip> __result)
+  {
+  if (__instance is not NecroMasteryPower) return;
+
+        string desc = LocManager.Instance.Language switch
+        {
+            "eng" => "...", "zhs" => "...", /* 16 语言 */
+            _ => "..."
+        };
+
+        var tip = new HoverTip(__instance, desc, isSmart: false);
+        __result = new List<IHoverTip> { tip };
+  }
+  }
