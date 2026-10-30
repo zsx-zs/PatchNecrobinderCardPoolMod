@@ -150,4 +150,43 @@ public static class PatchDebilitate
             return false;
         }
     }
+
+    // ⑩ LocString：DEBILITATE.title（卡名：浮灵 / Souls Adrift）
+    //    与 ⑨ 同出口，key 互斥，不会互相覆盖
+    [HarmonyPatch(typeof(LocString), nameof(LocString.GetRawText))]
+    public static class PatchTitle
+    {
+        private const string EngTitle = "Souls Adrift";
+        private const string ZhsTitle = "浮灵";
+        private const string ZhtTitle = "浮靈";
+        private const string DeuTitle = "Getriebene Seelen";
+        private const string EspTitle = "Almas a la deriva";
+        private const string FraTitle = "Âmes à la dérive";
+        private const string IndTitle = "Jiwa Terapung";
+        private const string ItaTitle = "Anime alla deriva";
+        private const string JpnTitle = "漂う魂";
+        private const string KorTitle = "떠도는 영혼";
+        private const string PolTitle = "Dryfujące dusze";
+        private const string PtbTitle = "Almas à deriva";
+        private const string RusTitle = "Блуждающие души";
+        private const string SpaTitle = "Almas a la deriva";
+        private const string ThaTitle = "วิญญาณล่องลอย";
+        private const string TurTitle = "Sürüklenen Ruhlar";
+
+        static bool Prefix(LocString __instance, ref string __result)
+        {
+            if (__instance.LocTable != "cards" || __instance.LocEntryKey != "DEBILITATE.title")
+                return true;
+
+            __result = LocManager.Instance.Language switch
+            {
+                "eng" => EngTitle, "zhs" => ZhsTitle, "zht" => ZhtTitle, "deu" => DeuTitle,
+                "esp" => EspTitle, "fra" => FraTitle, "ind" => IndTitle, "ita" => ItaTitle,
+                "jpn" => JpnTitle, "kor" => KorTitle, "pol" => PolTitle, "ptb" => PtbTitle,
+                "rus" => RusTitle, "spa" => SpaTitle, "tha" => ThaTitle, "tur" => TurTitle,
+                _ => EngTitle
+            };
+            return false;
+        }
+    }
 }
