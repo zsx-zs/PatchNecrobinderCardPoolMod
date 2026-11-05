@@ -69,7 +69,7 @@ public static class PatchFear
     {
         static void Postfix(ref IEnumerable<DynamicVar> __result)
         {
-            __result = new List<DynamicVar> { new PowerVar<VulnerablePower>(1m) };
+            __result = new List<DynamicVar> { new PowerVar<VulnerablePower>(2m) };
         }
     }
 
@@ -92,8 +92,8 @@ public static class PatchFear
 
         static void Postfix(Fear __instance)
         {
-            // VulnerablePower 的 BaseValue 从 1 升到 2
-            __instance.DynamicVars.Vulnerable.UpgradeValueBy(1m);
+            // 升级后去除消耗词条
+            __instance.RemoveKeyword(CardKeyword.Exhaust);
         }
     }
 
@@ -127,10 +127,10 @@ public static class PatchFear
             "[gold]Apply[/gold] {VulnerablePower:diff()} [gold]Vulnerable[/gold] to ALL enemies.";
 
         private const string ZhsText =
-            "对所有敌人施加{VulnerablePower:diff()}层[gold]易伤[/gold]。";
+            "给予所有敌人{VulnerablePower:diff()}层[gold]易伤[/gold]。";
 
         private const string ZhtText =
-            "對所有敵人施加{VulnerablePower:diff()}層[gold]易傷[/gold]。";
+            "给予所有敵人{VulnerablePower:diff()}層[gold]易傷[/gold]。";
 
         private const string DeuText =
             "Verleihe allen Gegnern {VulnerablePower:diff()} [gold]Verwundbar[/gold].";

@@ -19,14 +19,14 @@ public static class PatchDevourLife
         }
     }
 
-    [HarmonyPatch(typeof(DevourLife), MethodType.Constructor)]
-    public static class PatchConstructor
-    {
-        static void Postfix(object __instance)
-        {
-            var type = __instance.GetType().BaseType!;
-            var field = type.GetField("<Rarity>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance);
-            field?.SetValue(__instance, CardRarity.Uncommon);
-        }
-    }
+    // [HarmonyPatch(typeof(DevourLife), MethodType.Constructor)]
+    // public static class PatchConstructor
+    // {
+    //     static void Postfix(object __instance)
+    //     {
+    //         var type = __instance.GetType().BaseType!;
+    //         var field = type.GetField("<Rarity>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance);
+    //         field?.SetValue(__instance, CardRarity.Uncommon);
+    //     }
+    // }
 }

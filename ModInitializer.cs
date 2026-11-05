@@ -12,7 +12,7 @@ namespace PatchNecrobinderCardPoolMod.Cards
 			var harmony = new Harmony("TestNecrobinderCardPool.zyfeng");
 			harmony.PatchAll();
 
-			Log.Info("加载成功！");
+			Log.Info("亡灵契约师卡池调整modg加载成功！作者：zyfeng");
 		}
 	}
 }
