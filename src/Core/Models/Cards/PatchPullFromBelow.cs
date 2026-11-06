@@ -49,14 +49,14 @@ public static class PatchPullFromBelow
         }
     }
 
-    [HarmonyPatch(typeof(PullFromBelow), MethodType.Constructor)]
-    public static class PatchConstructor
-    {
-        static void Postfix(object __instance)
-        {
-            var type = __instance.GetType().BaseType!;
-            var field = type.GetField("<Rarity>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance);
-            field?.SetValue(__instance, CardRarity.Rare);
-        }
-    }
+    // [HarmonyPatch(typeof(PullFromBelow), MethodType.Constructor)]
+    // public static class PatchConstructor
+    // {
+    //     static void Postfix(object __instance)
+    //     {
+    //         var type = __instance.GetType().BaseType!;
+    //         var field = type.GetField("<Rarity>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance);
+    //         field?.SetValue(__instance, CardRarity.Rare);
+    //     }
+    // }
 }

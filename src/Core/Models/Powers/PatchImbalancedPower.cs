@@ -20,15 +20,22 @@ namespace PatchNecrobinderCardPoolMod.Powers;
 [HarmonyPatch(typeof(ImbalancedPower), nameof(ImbalancedPower.AfterDamageGiven))]
 public static class PatchImbalancedOsty
 {
-    // 跳过原版 async Task 方法体，自己重写（保留原版逻辑 + 加 Pet 条件）
+    // 跳过原版 async Task 方法体，自己重写（保留原版逻辑 + 加 Pet 挡条件）
     static bool Prefix() => false;
 
     static void Postfix(ImbalancedPower __instance, PlayerChoiceContext choiceContext, Creature? dealer, DamageResult result, ValueProp props, Creature target, CardModel? cardSource, ref Task __result)
     {
-        bool shouldTrigger = dealer == __instance.Owner && (
-            result.WasFullyBlocked ||
-            (result.Receiver != null && result.Receiver.IsPet && result.Receiver.IsAlive && !result.WasTargetKilled)
-        );
+        if (dealer != __instance.Owner) { __result = Task.CompletedTask; return; }
+
+        // Pet result 进来直接跳过（它的 WasFullyBlocked 没被赋值，判断无意义）
+        // Summoner result 才是我们需要的
+        if (result.Receiver.IsPet) { __result = Task.CompletedTask; return; }
+
+        // 核心：Summoner result.UnblockedDamage == 0 涵盖所有被挡情况
+        //   无 Pet 场景：Block 全挡 → UnblockedDamage = 0
+        //   有 Pet 场景：Pet 全吃（活/刚好死）→ Overkill = 0 → UnblockedDamage = 0
+        //   有 Pet 但吃不下：Overkill 回 Summoner → UnblockedDamage > 0 → 不该触发
+        bool shouldTrigger = result.UnblockedDamage == 0;
 
         if (!shouldTrigger) { __result = Task.CompletedTask; return; }
 

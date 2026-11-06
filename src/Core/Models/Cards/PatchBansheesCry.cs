@@ -17,6 +17,8 @@ using MegaCrit.Sts2.Core.ValueProps;
 
 namespace PatchNecrobinderCardPoolMod.Cards;
 
+// 暂时停用 — 效果不理想，保留代码以后再说
+#if false
 public static class PatchBansheesCry
 {
     // ---------- 稀有度 Rare → Uncommon ----------
@@ -221,3 +223,4 @@ public static class PatchBansheesCry
         }
     }
 }
+#endif
