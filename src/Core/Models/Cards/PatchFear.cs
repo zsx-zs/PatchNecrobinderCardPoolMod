@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Godot;
 using HarmonyLib;
 using MegaCrit.Sts2.Core.Commands;
 using MegaCrit.Sts2.Core.Combat;
@@ -21,7 +22,7 @@ namespace PatchNecrobinderCardPoolMod.Cards;
 
 public static class PatchFear
 {
-    // ---------- ① 耗能 0：get_CanonicalEnergyCost Postfix（和 BansheesCry 同款） ----------
+    // ---------- ① 耗能 0：get_CanonicalEnergyCost Postfix ----------
     //    不能改 Constructor backing field——费用是动态算的，会被覆盖
     [HarmonyPatch(typeof(CardModel), "get_CanonicalEnergyCost")]
     public static class PatchCost
@@ -188,3 +189,4 @@ public static class PatchFear
         }
     }
 }
+
