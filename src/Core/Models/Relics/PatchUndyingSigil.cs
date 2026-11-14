@@ -5,9 +5,11 @@ using System.Linq;
 using System.Threading.Tasks;
 using HarmonyLib;
 using MegaCrit.Sts2.Core.Commands;
+using MegaCrit.Sts2.Core.Combat;
 using MegaCrit.Sts2.Core.Entities.Cards;
 using MegaCrit.Sts2.Core.Entities.Creatures;
 using MegaCrit.Sts2.Core.Entities.Relics;
+using MegaCrit.Sts2.Core.GameActions.Multiplayer;
 using MegaCrit.Sts2.Core.HoverTips;
 using MegaCrit.Sts2.Core.Localization;
 using MegaCrit.Sts2.Core.Localization.DynamicVars;
@@ -71,7 +73,7 @@ public static class PatchUndyingSigil
     [HarmonyPatch(typeof(AbstractModel), nameof(AbstractModel.AfterPowerAmountChanged))]
     public static class PatchAfterPowerAmountChanged
     {
-        static async Task Postfix(Task __result, AbstractModel __instance, PowerModel power, decimal amount, Creature? applier, CardModel? cardSource)
+        static async Task Postfix(Task __result, AbstractModel __instance, PlayerChoiceContext choiceContext, PowerModel power, decimal amount, Creature? applier, CardModel? cardSource)
         {
             await __result;
 
@@ -91,7 +93,7 @@ public static class PatchUndyingSigil
     [HarmonyPatch(typeof(AbstractModel), nameof(AbstractModel.BeforeSideTurnStart))]
     public static class PatchBeforeSideTurnStart
     {
-        static void Postfix(AbstractModel __instance, IReadOnlyList<Creature> participants)
+        static void Postfix(AbstractModel __instance, PlayerChoiceContext choiceContext, CombatSide side, IReadOnlyList<Creature> participants, ICombatState combatState)
         {
             if (__instance is not UndyingSigil sigil) return;
             if (!participants.Contains(sigil.Owner.Creature)) return;
@@ -103,7 +105,7 @@ public static class PatchUndyingSigil
     [HarmonyPatch(typeof(AbstractModel), nameof(AbstractModel.AfterCombatEnd))]
     public static class PatchAfterCombatEnd
     {
-        static void Postfix(AbstractModel __instance)
+        static void Postfix(AbstractModel __instance, CombatRoom room)
         {
             if (__instance is not UndyingSigil sigil) return;
             ResetUsed(sigil);

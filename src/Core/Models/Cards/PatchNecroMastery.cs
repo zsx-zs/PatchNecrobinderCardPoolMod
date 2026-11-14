@@ -19,14 +19,13 @@ public static class PatchNecroMastery
     [HarmonyPatch(typeof(AbstractModel), nameof(AbstractModel.AfterPlayerTurnStart))]
     public static class PatchAbstractModelAfterPlayerTurnStart
     {
-        static Task Postfix(Task __result, AbstractModel __instance, PlayerChoiceContext choiceContext, Player player)
+        static async Task Postfix(Task __result, AbstractModel __instance, PlayerChoiceContext choiceContext, Player player)
         {
-            if (__instance is not NecroMasteryPower) return __result;
-            return __result.ContinueWith(async _ =>
-            {
-                if (player.Osty != null && player.Osty.IsAlive)
-                    await CreatureCmd.Heal(player.Osty, 2m);
-            });
+            await __result;  // 先等原版完成
+            if (__instance is not NecroMasteryPower) return;
+            // 不用 ContinueWith/Task.Run —— 保持原调用线程上下文
+            if (player.Osty != null && player.Osty.IsAlive)
+                await CreatureCmd.Heal(player.Osty, 2m);
         }
     }
 

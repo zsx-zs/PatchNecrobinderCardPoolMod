@@ -103,7 +103,7 @@ public static class PatchCountdown
     [HarmonyPatch(typeof(CountdownPower), "AfterSideTurnStart")]
     public static class PatchCountdownPowerAfterSideTurnStart
     {
-        static bool Prefix(CountdownPower __instance, IReadOnlyList<Creature> participants)
+        static bool Prefix(CountdownPower __instance, CombatSide side, IReadOnlyList<Creature> participants)
         {
             // 没升级 / 不是自己回合 → 让原版正常跑
             if (!participants.Contains(__instance.Owner)) return true;
@@ -112,25 +112,21 @@ public static class PatchCountdown
             return false;
         }
 
-        static void Postfix(ref Task __result, CountdownPower __instance, IReadOnlyList<Creature> participants, ICombatState combatState)
+        static void Postfix(ref Task __result, CountdownPower __instance, CombatSide side, IReadOnlyList<Creature> participants, ICombatState combatState)
         {
             // Prefix 已经处理了，这里只关心升级版且自己回合的情况
             if (!participants.Contains(__instance.Owner)) return;
             if (!_upgradedCountdownMarkers.TryGetValue(__instance, out _)) return;
 
-            __result = Task.Run(async () =>
-            {
-                // 给所有敌人加 Doom（原版只加随机 1 个）
-                foreach (var enemy in combatState.HittableEnemies)
-                {
-                    await PowerCmd.Apply<DoomPower>(
-                        new ThrowingPlayerChoiceContext(),
-                        enemy,
-                        __instance.Amount,
-                        __instance.Owner,
-                        null);
-                }
-            });
+            // 用 PowerCmd 批量 overload（内部还是 foreach，但写法跟原版 Deathbringer 一致）
+            // silent: true 跳过视觉 flash（但跳过不了 Cmd.CustomScaledWait 0.15s 的硬等待）
+            __result = PowerCmd.Apply<DoomPower>(
+                new ThrowingPlayerChoiceContext(),
+                combatState.HittableEnemies,
+                __instance.Amount,
+                __instance.Owner,
+                null,
+                silent: true);
         }
     }
 

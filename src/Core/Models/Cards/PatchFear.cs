@@ -109,13 +109,16 @@ public static class PatchFear
             var combatState = __instance.CombatState!;
             var enemies = combatState.Enemies.Where(e => e != null && e.IsAlive).ToList();
 
-            __result = Task.CompletedTask.ContinueWith(async _ =>
+            // 不用 ContinueWith/Task.Run —— 保持和原版 async 方法相同的调度上下文
+            // 同步部分在原调用线程执行，第一个 await 才挂起，避免 ThreadPool race with UI
+            async Task ApplyAll()
             {
                 foreach (var enemy in enemies)
                 {
                     await PowerCmd.Apply<VulnerablePower>(choiceContext, enemy, amount, __instance.Owner.Creature, __instance);
                 }
-            }).Unwrap();
+            }
+            __result = ApplyAll();
         }
     }
 
