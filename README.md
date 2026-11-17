@@ -115,16 +115,27 @@ OnPlay 是`async` ，编译器会把真正的方法体搬进状态机`<OnPlay>d_
 
 ### ImbalancedPower（BowlbugRock 失衡）
 原版触发条件：BowlbugRock 攻击完全被玩家格挡（`WasFullyBlocked`）。
-**新增条件**：伤害被 DieForYouPower 转移给 Pet 且 Pet 活下来——从玩家视角也算"被挡了"。
-- patch `ImbalancedPower.AfterDamageGiven`，`Prefix return false` + 手写 void Postfix + `ref Task __result`
-- 判定条件 OR：`WasFullyBlocked || (Receiver.IsPet && Receiver.IsAlive && !WasTargetKilled)`
+
+原版有两个 bug（`CreatureCmd.cs` line 338）：
+1. `wasFullyBlocked = !Unblockable && (blockedDamage > 0 || originalTarget.Block > 0) && uBD == 0` — 那个多余的 `|| originalTarget.Block > 0` 导致 **Wuppy 全挡时误触发**（Summoner Block 没被碰但上回合有存量）。
+2. **Osty 全挡时反而不触发**（blockedDamage=0 + Summoner.Block=0 → WasFullyBlocked=false）。
+
+修正：
+- patch `ImbalancedPower.AfterDamageGiven`，`Prefix return false` + 手写 `void Postfix(..., ref Task __result)`
+- 只处理 Summoner 的 DamageResult（`!IsPet && !IsMonster`）
+- 查 Wuppy：`CombatState.Creatures`（全集，含 Pets）+ `Side==Player` 过滤，不能用 `PlayerCreatures`（只含 `IsPlayer=true` 的 Summoner）
+- 区分 Osty/Wuppy：`Monster.GetType().Name`（两者都是 `IsMonster=true, IsPet=true, IsPlayer=false`）
+- Summoner 真受伤 → 不触发；Block 真被碰（B>0）→ 触发；Wuppy 活在场 + B=0 → 不触发；否则（Osty 挡 / B=0）→ 触发
 
 ### SuckPower（FossilStalker 破挡加力量）
-原版：跳过 Pet 伤害后只看主人身上 `UnblockedDamage > 0` → 加 Strength。
-**盲区**：DieForYouPower 转移后 Owner 和 Pet 结果在不同内层组，Pet 那组没被正确跳过。
-**修正**：Pet 活下来时不加力量（从主人视角 = 被挡了）。
-- patch `SuckPower.AfterAttack`，同上 `Prefix return false` + void Postfix + `ref Task __result`
-- 判定 `petSurvived = petHits.Any(r => IsAlive && !WasTargetKilled)`
+原版 bug：只移除 PetOwner(Summoner) 的 result，不移除 Pet 自己的 → Osty.uBD>0 留在 hitGroup 里照样触发。且 Osty/Wuppy 都是 `IsPet=true`，原版根本区分不了。
+
+修正：
+- patch `SuckPower.AfterAttack`，同上模式
+- 用 `Monster.GetType().Name` 精确区分：`"Wuppy"` = Wuppy，`"Osty"` = Osty，`Monster==null && !IsPet` = Summoner
+- 判定逻辑（hitGroup 维度）：
+  - 有 Wuppy receiver → Wuppy 全挡 = 强制视为"没挡住" → 触发加力量；Summoner Block 挡了溢出 → 不触发
+  - 无 Wuppy + Summoner 真受伤（uBD>0）→ 触发；Summoner 没受伤（Osty 挡 / Summoner Block 挡）→ 不触发
 
 ## StS2 反编译关键签名速查
 
