@@ -1,49 +1,45 @@
-﻿﻿#nullable enable
+﻿#nullable enable
 using System.Collections.Generic;
 using System.Reflection;
 using HarmonyLib;
 using MegaCrit.Sts2.Core.Entities.Cards;
+using MegaCrit.Sts2.Core.Localization.DynamicVars;
 using MegaCrit.Sts2.Core.Models.Cards;
 using MegaCrit.Sts2.Core.Models;
+using MegaCrit.Sts2.Core.ValueProps;
 
 namespace PatchNecrobinderCardPoolMod.Cards;
 
-[HarmonyPatch(typeof(CardModel), "get_CanonicalKeywords")]
-public static class PatchCleanseKeywords
+public static class PatchCleanse
 {
-    static void Postfix(object __instance, ref IEnumerable<CardKeyword> __result)
-    {
-        if (__instance is not Cleanse) return;
-        __result = new List<CardKeyword> { CardKeyword.Ethereal };
-    }
-}
 
-[HarmonyPatch(typeof(Cleanse), "OnUpgrade")]
-public static class PatchCleanseOnUpgrade
-{
-    static bool Prefix(object __instance)
+    [HarmonyPatch(typeof(CardModel), "get_CanonicalKeywords")]
+    public static class PatchCleanseKeywords
     {
-        var type = __instance.GetType();
-        PropertyInfo? prop = null;
-        while (type != null)
+        static void Postfix(object __instance, ref IEnumerable<CardKeyword> __result)
         {
-            prop = type.GetProperty("DynamicVars", BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance);
-            if (prop != null) break;
-            type = type.BaseType;
+            if (__instance is not Cleanse) return;
+            __result = new List<CardKeyword> { CardKeyword.Ethereal };
         }
-        var dynamicVars = prop!.GetValue(__instance);
-        var summon = dynamicVars!.GetType().GetProperty("Summon")!.GetValue(dynamicVars);
-        summon!.GetType().GetMethod("UpgradeValueBy")!.Invoke(summon, new object[] { 1m });
-        return false;
     }
-}
 
-[HarmonyPatch(typeof(CardModel), "get_CanonicalEnergyCost")]
-public static class PatchCleanseCost
-{
-    static void Postfix(object __instance, ref int __result)
+    [HarmonyPatch(typeof(Cleanse), "get_CanonicalVars")]
+    public static class PatchCanonicalVars
     {
-        if (__instance is not Cleanse) return;
-        __result = 0;
+        static void Postfix(ref IEnumerable<DynamicVar> __result)
+        {
+            __result = new List<DynamicVar> { new SummonVar(2m) };
+        }
+
+    }
+
+    [HarmonyPatch(typeof(CardModel), "get_CanonicalEnergyCost")]
+    public static class PatchCleanseCost
+    {
+        static void Postfix(object __instance, ref int __result)
+        {
+            if (__instance is not Cleanse) return;
+            __result = 0;
+        }
     }
 }

@@ -20,7 +20,7 @@ public static class PatchScourge
             {
                 if (vars[i] is PowerVar<DoomPower>)
                 {
-                    vars[i] = new PowerVar<DoomPower>(12m);
+                    vars[i] = new PowerVar<DoomPower>(11m);
                 }
 
                 else if (vars[i] is CardsVar)
@@ -49,7 +49,7 @@ public static class PatchScourge
             var dynamicVars = prop!.GetValue(__instance);
 
             var doom = dynamicVars!.GetType().GetProperty("Doom")!.GetValue(dynamicVars);
-            doom!.GetType().GetMethod("UpgradeValueBy")!.Invoke(doom, new object[] { 2m });
+            doom!.GetType().GetMethod("UpgradeValueBy")!.Invoke(doom, new object[] { 3m });
 
             // Cards 已经在 CanonicalVars 里设成最终值 2 了，升级后不变
             // 不调用 UpgradeValueBy，避免设置 WasJustUpgraded=true 导致 UI 蓝绿色错误

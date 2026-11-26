@@ -47,7 +47,7 @@ public static class PatchImbalancedOsty
         // 只处理 Summoner 的 result
         if (result.Receiver.IsPet || result.Receiver.IsMonster) { __result = Task.CompletedTask; return; }
 
-        bool wuppyAlive = result.Receiver.CombatState.Creatures.Any(c =>
+        bool wuppyAlive = result.Receiver.CombatState!.Creatures.Any(c =>
             c.Side == CombatSide.Player && c.Monster?.GetType().Name == "Wuppy" && !c.IsDead);
 
         // ① Summoner 真受伤 → 不触发
